@@ -1,0 +1,9 @@
+[submodule "lib/commonlibsf"]
+	path = lib/commonlibsf
+	url = https://github.com/QTR-Modding/commonlibsf.git
+[submodule "extern/imgui"]
+	path = extern/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "lib/sfse-menu-framework"]
+	path = lib/sfse-menu-framework
+	url = https://github.com/QTR-Modding/SFSE-Menu-Framework.git

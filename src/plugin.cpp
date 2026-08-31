@@ -14,7 +14,7 @@ namespace
 		const auto result = SFSEMenuFrameworkExample::Menu::Register();
 		if (result == SFSEMenuFramework::Model::RegistrationResult::Success) {
 			logger::info(
-				"Registered Test Plugin / Settings, lifecycle listeners, and the standalone consumer window.");
+				"Registered the nested general and lifecycle test panels, lifecycle listeners, and the standalone consumer window.");
 		} else if (
 			result ==
 			SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable) {

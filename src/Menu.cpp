@@ -300,11 +300,9 @@ namespace
 		}
 	}
 
-	void __stdcall RenderSettings() noexcept
+	void __stdcall RenderGeneralSettings() noexcept
 	{
 		RenderCounter();
-		RenderLifecycleEvents();
-		ImGui::Separator();
 
 		bool standaloneOpen = IsStandaloneOpen();
 		if (ImGui::Checkbox("Standalone example window open", &standaloneOpen)) {
@@ -337,6 +335,11 @@ namespace
 		ImGui::Separator();
 		RenderHotkeyControl();
 	}
+
+	void __stdcall RenderLifecyclePage() noexcept
+	{
+		RenderLifecycleEvents();
+	}
 }
 
 SFSEMenuFramework::Model::RegistrationResult
@@ -364,7 +367,18 @@ SFSEMenuFrameworkExample::Menu::Register()
 			return SFSEMenuFramework::Model::RegistrationResult::InternalError;
 		}
 	}
+	const auto settingsResult = SFSEMenuFramework::AddSectionItem(
+		"Settings/General",
+		&RenderGeneralSettings);
+	if (settingsResult !=
+		SFSEMenuFramework::Model::RegistrationResult::Success) {
+		return settingsResult;
+	}
+
+	if (!SFSEMenuFramework::SetSection("Test Plugin Diagnostics")) {
+		return SFSEMenuFramework::Model::RegistrationResult::OutOfMemory;
+	}
 	return SFSEMenuFramework::AddSectionItem(
-		"Settings",
-		&RenderSettings);
+		"Lifecycle/Events",
+		&RenderLifecyclePage);
 }

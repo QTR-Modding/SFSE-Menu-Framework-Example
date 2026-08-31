@@ -13,7 +13,8 @@ namespace
 
 		const auto result = SFSEMenuFrameworkExample::Menu::Register();
 		if (result == SFSEMenuFramework::Model::RegistrationResult::Success) {
-			logger::info("Registered Test Plugin / Settings with SFSE Menu Framework.");
+			logger::info(
+				"Registered Test Plugin / Settings and the standalone consumer window.");
 		} else if (
 			result ==
 			SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable) {

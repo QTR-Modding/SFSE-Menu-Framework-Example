@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "InputHudDemo.h"
 
 #include <SFSEMenuFramework/SFSEMenuFramework.h>
 
@@ -351,6 +352,10 @@ SFSEMenuFrameworkExample::Menu::Register()
 	if (!SFSEMenuFramework::IsEventAPIAvailable()) {
 		return SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion;
 	}
+	if (!SFSEMenuFramework::IsInputEventAPIAvailable() ||
+		!SFSEMenuFramework::IsHudElementAPIAvailable()) {
+		return SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion;
+	}
 	if (!SFSEMenuFramework::GetMainWindow()) {
 		return SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion;
 	}
@@ -378,7 +383,12 @@ SFSEMenuFrameworkExample::Menu::Register()
 	if (!SFSEMenuFramework::SetSection("Test Plugin Diagnostics")) {
 		return SFSEMenuFramework::Model::RegistrationResult::OutOfMemory;
 	}
-	return SFSEMenuFramework::AddSectionItem(
+	const auto lifecycleResult = SFSEMenuFramework::AddSectionItem(
 		"Lifecycle/Events",
 		&RenderLifecyclePage);
+	if (lifecycleResult !=
+		SFSEMenuFramework::Model::RegistrationResult::Success) {
+		return lifecycleResult;
+	}
+	return InputHudDemo::Register();
 }

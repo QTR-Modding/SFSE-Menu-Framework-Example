@@ -14,7 +14,7 @@ namespace
 		const auto result = SFSEMenuFrameworkExample::Menu::Register();
 		if (result == SFSEMenuFramework::Model::RegistrationResult::Success) {
 			logger::info(
-				"Registered the nested general and lifecycle test panels, lifecycle listeners, and the standalone consumer window.");
+				"Registered the nested diagnostics, lifecycle, input, HUD, and standalone-window examples.");
 		} else if (
 			result ==
 			SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable) {
@@ -24,7 +24,7 @@ namespace
 			result ==
 			SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion) {
 			logger::error(
-				"SFSE Menu Framework 0.5.0 or newer (event API V3) is required.");
+				"SFSE Menu Framework 0.9.0 or newer (input/HUD API V4) is required.");
 		} else {
 			logger::error(
 				"Example panel registration failed with result {}.",

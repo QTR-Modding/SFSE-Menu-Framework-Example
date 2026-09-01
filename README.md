@@ -10,8 +10,9 @@ framework's search, favorite ordering, archive/restore, and slash-path
 navigation. It also registers lifecycle, native-input, and persistent-HUD
 callbacks through the public API.
 
-The Fonts page exercises interface V5 from an external DLL. It resolves named
-text fonts by case-insensitive filename and stem, balances text-font pushes with
+The Fonts page exercises the complete consumer interface from an external DLL
+and resolves named text fonts by case-insensitive filename and stem, balances
+text-font pushes with
 `ScopedFont`, and renders Solid, Regular, and Brands Font Awesome glyphs through
 the public helpers. Buttons verify that missing font names and unmatched pops
 are rejected. The multilingual sample also shows that optional glyph coverage
@@ -41,9 +42,8 @@ Both listener pairs and the HUD can be unregistered and registered again from
 the page. The HUD uses only the foreground draw list, remains noninteractive,
 and continues to render while the MCP is closed.
 
-This example version requires SFSE Menu Framework 0.10.0 or newer (font API
-interface V5). An older framework DLL is reported as an unsupported version
-during `kPostLoad` registration.
+This example version requires SFSE Menu Framework 0.10.0 or newer. An older
+framework DLL is reported as unavailable during `kPostLoad` registration.
 
 The hotkey checkbox can be disabled only while the standalone window is open
 and blocking. Closing that window or making it nonblocking automatically

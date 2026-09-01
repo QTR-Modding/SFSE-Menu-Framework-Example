@@ -21,11 +21,6 @@ namespace
 			SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable) {
 			logger::warn(
 				"SFSE Menu Framework is unavailable; the example remains inactive.");
-		} else if (
-			result ==
-			SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion) {
-			logger::error(
-				"SFSE Menu Framework 0.10.0 or newer (font API V5) is required.");
 		} else {
 			logger::error(
 				"Example panel registration failed with result {}.",

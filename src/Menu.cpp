@@ -350,15 +350,8 @@ SFSEMenuFrameworkExample::Menu::Register()
 	if (!SFSEMenuFramework::IsInstalled()) {
 		return SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable;
 	}
-	if (!SFSEMenuFramework::IsEventAPIAvailable()) {
-		return SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion;
-	}
-	if (!SFSEMenuFramework::IsInputEventAPIAvailable() ||
-		!SFSEMenuFramework::IsHudElementAPIAvailable()) {
-		return SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion;
-	}
 	if (!SFSEMenuFramework::GetMainWindow()) {
-		return SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion;
+		return SFSEMenuFramework::Model::RegistrationResult::InternalError;
 	}
 	if (!SFSEMenuFramework::SetSection("Test Plugin")) {
 		return SFSEMenuFramework::Model::RegistrationResult::OutOfMemory;

@@ -241,10 +241,6 @@ SFSEMenuFramework::Model::RegistrationResult
 SFSEMenuFrameworkExample::InputHudDemo::Register()
 {
 	using Result = SFSEMenuFramework::Model::RegistrationResult;
-	if (!SFSEMenuFramework::IsInputEventAPIAvailable() ||
-		!SFSEMenuFramework::IsHudElementAPIAvailable()) {
-		return Result::UnsupportedVersion;
-	}
 	if (!RegisterInputListeners() || !RegisterHud()) {
 		UnregisterHud();
 		UnregisterInputListeners();

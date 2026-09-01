@@ -8,7 +8,7 @@ namespace
 {
 	// The named-font and Font Awesome usage pattern adapts SKSE Menu Framework 3
 	// Usage.md at commit 928e01ab459822a8d233ab99f0419ea1de23c775
-	// (GPL-3.0). The checks exercise SFSE Menu Framework's safer V5 contract.
+	// (GPL-3.0). The checks exercise SFSE Menu Framework's consumer contract.
 	const std::string solidIcon =
 		SFSEMenuFramework::FontAwesome::UnicodeToUtf8(0xF0E9U);
 	const std::string regularIcon =
@@ -124,7 +124,7 @@ namespace
 	void __stdcall RenderFontAPI() noexcept
 	{
 		ImGui::TextWrapped(
-			"V5 resolves font names only while this consumer callback is active. "
+			"Font names resolve only while this consumer callback is active. "
 			"ScopedFont balances each successful text-font push automatically.");
 		RenderNamedFonts();
 		RenderFontAwesome();
@@ -145,10 +145,5 @@ namespace
 SFSEMenuFramework::Model::RegistrationResult
 SFSEMenuFrameworkExample::FontDemo::Register()
 {
-	using Result = SFSEMenuFramework::Model::RegistrationResult;
-	if (!SFSEMenuFramework::IsFontAPIAvailable()) {
-		return Result::UnsupportedVersion;
-	}
-
 	return SFSEMenuFramework::AddSectionItem("Fonts/API", &RenderFontAPI);
 }

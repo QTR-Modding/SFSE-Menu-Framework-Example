@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "FontDemo.h"
 #include "InputHudDemo.h"
 
 #include <SFSEMenuFramework/SFSEMenuFramework.h>
@@ -390,5 +391,10 @@ SFSEMenuFrameworkExample::Menu::Register()
 		SFSEMenuFramework::Model::RegistrationResult::Success) {
 		return lifecycleResult;
 	}
-	return InputHudDemo::Register();
+	const auto inputHudResult = InputHudDemo::Register();
+	if (inputHudResult !=
+		SFSEMenuFramework::Model::RegistrationResult::Success) {
+		return inputHudResult;
+	}
+	return FontDemo::Register();
 }

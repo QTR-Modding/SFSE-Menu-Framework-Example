@@ -3,11 +3,20 @@
 A minimal external C++ consumer for SFSE Menu Framework. During SFSE
 `kPostLoad`, it registers `Test Plugin` > `Settings` > `General`,
 `Test Plugin Diagnostics` > `Lifecycle` > `Events`, `Test Plugin Diagnostics`
-> `Input and HUD`, and a consumer-owned, resizable ImGui window. They are
+> `Input and HUD`, `Test Plugin Diagnostics` > `Fonts` > `API`, and a
+consumer-owned, resizable ImGui window. They are
 available before `kPostDataLoad`. The two roots and nested pages exercise the
 framework's search, favorite ordering, archive/restore, and slash-path
 navigation. It also registers lifecycle, native-input, and persistent-HUD
 callbacks through the public API.
+
+The Fonts page exercises interface V5 from an external DLL. It resolves named
+text fonts by case-insensitive filename and stem, balances text-font pushes with
+`ScopedFont`, and renders Solid, Regular, and Brands Font Awesome glyphs through
+the public helpers. Buttons verify that missing font names and unmatched pops
+are rejected. The multilingual sample also shows that optional glyph coverage
+requires both the matching framework setting and a font containing those
+characters.
 
 The plugin compiles only the four Dear ImGui 1.90.8 core sources required to
 render through the framework-owned context. It does not create a renderer,
@@ -32,8 +41,8 @@ Both listener pairs and the HUD can be unregistered and registered again from
 the page. The HUD uses only the foreground draw list, remains noninteractive,
 and continues to render while the MCP is closed.
 
-This example version requires SFSE Menu Framework 0.9.0 or newer (input/HUD API
-interface V4). An older framework DLL is reported as an unsupported version
+This example version requires SFSE Menu Framework 0.10.0 or newer (font API
+interface V5). An older framework DLL is reported as an unsupported version
 during `kPostLoad` registration.
 
 The hotkey checkbox can be disabled only while the standalone window is open

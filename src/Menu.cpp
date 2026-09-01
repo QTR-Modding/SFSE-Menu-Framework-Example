@@ -1,4 +1,6 @@
 #include "Menu.h"
+#include "FontDemo.h"
+#include "InputHudDemo.h"
 
 #include <SFSEMenuFramework/SFSEMenuFramework.h>
 
@@ -300,11 +302,9 @@ namespace
 		}
 	}
 
-	void __stdcall RenderSettings() noexcept
+	void __stdcall RenderGeneralSettings() noexcept
 	{
 		RenderCounter();
-		RenderLifecycleEvents();
-		ImGui::Separator();
 
 		bool standaloneOpen = IsStandaloneOpen();
 		if (ImGui::Checkbox("Standalone example window open", &standaloneOpen)) {
@@ -337,6 +337,11 @@ namespace
 		ImGui::Separator();
 		RenderHotkeyControl();
 	}
+
+	void __stdcall RenderLifecyclePage() noexcept
+	{
+		RenderLifecycleEvents();
+	}
 }
 
 SFSEMenuFramework::Model::RegistrationResult
@@ -345,11 +350,8 @@ SFSEMenuFrameworkExample::Menu::Register()
 	if (!SFSEMenuFramework::IsInstalled()) {
 		return SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable;
 	}
-	if (!SFSEMenuFramework::IsEventAPIAvailable()) {
-		return SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion;
-	}
 	if (!SFSEMenuFramework::GetMainWindow()) {
-		return SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion;
+		return SFSEMenuFramework::Model::RegistrationResult::InternalError;
 	}
 	if (!SFSEMenuFramework::SetSection("Test Plugin")) {
 		return SFSEMenuFramework::Model::RegistrationResult::OutOfMemory;
@@ -364,7 +366,28 @@ SFSEMenuFrameworkExample::Menu::Register()
 			return SFSEMenuFramework::Model::RegistrationResult::InternalError;
 		}
 	}
-	return SFSEMenuFramework::AddSectionItem(
-		"Settings",
-		&RenderSettings);
+	const auto settingsResult = SFSEMenuFramework::AddSectionItem(
+		"Settings/General",
+		&RenderGeneralSettings);
+	if (settingsResult !=
+		SFSEMenuFramework::Model::RegistrationResult::Success) {
+		return settingsResult;
+	}
+
+	if (!SFSEMenuFramework::SetSection("Test Plugin Diagnostics")) {
+		return SFSEMenuFramework::Model::RegistrationResult::OutOfMemory;
+	}
+	const auto lifecycleResult = SFSEMenuFramework::AddSectionItem(
+		"Lifecycle/Events",
+		&RenderLifecyclePage);
+	if (lifecycleResult !=
+		SFSEMenuFramework::Model::RegistrationResult::Success) {
+		return lifecycleResult;
+	}
+	const auto inputHudResult = InputHudDemo::Register();
+	if (inputHudResult !=
+		SFSEMenuFramework::Model::RegistrationResult::Success) {
+		return inputHudResult;
+	}
+	return FontDemo::Register();
 }

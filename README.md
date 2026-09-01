@@ -1,17 +1,29 @@
 # SFSE Menu Framework Example
 
 A minimal external C++ consumer for SFSE Menu Framework. During SFSE
-`kPostLoad`, it registers `Test Plugin` > `Settings` and a consumer-owned,
-resizable ImGui window through the public `AddWindow` API. Both are available
-before `kPostDataLoad`. It also registers two lifecycle listeners through
-`AddEvent`, deliberately registering the low-priority listener first so the UI
-can verify that higher-priority callbacks are dispatched first.
+`kPostLoad`, it registers `Test Plugin` > `Settings` > `General`,
+`Test Plugin Diagnostics` > `Lifecycle` > `Events`, `Test Plugin Diagnostics`
+> `Input and HUD`, `Test Plugin Diagnostics` > `Fonts` > `API`, and a
+consumer-owned, resizable ImGui window. They are
+available before `kPostDataLoad`. The two roots and nested pages exercise the
+framework's search, favorite ordering, archive/restore, and slash-path
+navigation. It also registers lifecycle, native-input, and persistent-HUD
+callbacks through the public API.
+
+The Fonts page exercises the complete consumer interface from an external DLL
+and resolves named text fonts by case-insensitive filename and stem, balances
+text-font pushes with
+`ScopedFont`, and renders Solid, Regular, and Brands Font Awesome glyphs through
+the public helpers. Buttons verify that missing font names and unmatched pops
+are rejected. The multilingual sample also shows that optional glyph coverage
+requires both the matching framework setting and a font containing those
+characters.
 
 The plugin compiles only the four Dear ImGui 1.90.8 core sources required to
 render through the framework-owned context. It does not create a renderer,
 platform backend, window hook, or input hook.
 
-The settings panel exercises the process-lifetime `WindowInterface` returned
+The General panel exercises the process-lifetime `WindowInterface` returned
 by `AddWindow`: the consumer directly controls `IsOpen` and
 `BlockUserInput`. It also displays aggregate blocking state, reads the main
 framework window, and exercises the framework hotkey control.
@@ -22,9 +34,16 @@ priority-order failure. Its checkbox deletes both RAII `Event` objects to test
 unregistration and can register them again. Opening or closing the standalone
 window must not change the Open/Close counts.
 
-This example version requires SFSE Menu Framework 0.5.0 or newer (event API
-interface V3). An older framework DLL is reported as an unsupported version
-during `kPostLoad` registration.
+The Input and HUD page registers a consuming input callback first and an
+observing callback second. Arm the next Escape press, close the MCP with F1,
+wait for the foreground HUD to update once, then press Escape: Starfield should
+remain in the game while the HUD reports matching observed and consumed counts.
+Both listener pairs and the HUD can be unregistered and registered again from
+the page. The HUD uses only the foreground draw list, remains noninteractive,
+and continues to render while the MCP is closed.
+
+This example version requires SFSE Menu Framework 0.10.0 or newer. An older
+framework DLL is reported as unavailable during `kPostLoad` registration.
 
 The hotkey checkbox can be disabled only while the standalone window is open
 and blocking. Closing that window or making it nonblocking automatically
@@ -34,7 +53,7 @@ stranding the user with F1 disabled.
 For a nonblocking-window test, uncheck `Standalone window blocks game input`,
 then close the main framework window with F1. The standalone window remains
 visible but intentionally has no mouse or keyboard ownership; press F1 again to
-return to the settings panel.
+return to the General panel.
 
 ## Build
 

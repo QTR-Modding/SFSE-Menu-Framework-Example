@@ -14,17 +14,13 @@ namespace
 		const auto result = SFSEMenuFrameworkExample::Menu::Register();
 		if (result == SFSEMenuFramework::Model::RegistrationResult::Success) {
 			logger::info(
-				"Registered Test Plugin / Settings, lifecycle listeners, and the standalone consumer window.");
+				"Registered the nested diagnostics, lifecycle, input, HUD, font, "
+				"and standalone-window examples.");
 		} else if (
 			result ==
 			SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable) {
 			logger::warn(
 				"SFSE Menu Framework is unavailable; the example remains inactive.");
-		} else if (
-			result ==
-			SFSEMenuFramework::Model::RegistrationResult::UnsupportedVersion) {
-			logger::error(
-				"SFSE Menu Framework 0.5.0 or newer (event API V3) is required.");
 		} else {
 			logger::error(
 				"Example panel registration failed with result {}.",

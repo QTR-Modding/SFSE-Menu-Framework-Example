@@ -1,6 +1,6 @@
 #include "InputHudDemo.h"
 
-#include <SFSEMenuFramework/SFSEMenuFramework.h>
+#include <SFSEMCP/SFSEMenuFramework.hpp>
 
 #include <RE/B/BSInputEventUser.h>
 
@@ -119,33 +119,42 @@ namespace
 			static_cast<unsigned long long>(observed),
 			static_cast<unsigned long long>(consumed));
 
-		const auto& io = ImGui::GetIO();
-		const auto size = ImGui::CalcTextSize(text);
-		const float padding = ImGui::GetFontSize() * 0.5F;
-		const ImVec2 position{
-			io.DisplaySize.x - size.x - padding * 3.0F,
+		const auto* io = ImGuiMCP::GetIO();
+		const auto size = ImGuiMCP::CalcTextSize(text);
+		const float padding = ImGuiMCP::GetFontSize() * 0.5F;
+		const ImGuiMCP::ImVec2 position{
+			io->DisplaySize.x - size.x - padding * 3.0F,
 			padding * 2.0F
 		};
-		const ImVec2 backgroundMinimum{
+		const ImGuiMCP::ImVec2 backgroundMinimum{
 			position.x - padding,
 			position.y - padding
 		};
-		const ImVec2 backgroundMaximum{
+		const ImGuiMCP::ImVec2 backgroundMaximum{
 			position.x + size.x + padding,
 			position.y + size.y + padding
 		};
-		auto* const drawList = ImGui::GetForegroundDrawList();
-		drawList->AddRectFilled(
+		auto* const drawList = ImGuiMCP::GetForegroundDrawList();
+		ImGuiMCP::ImDrawListManager::AddRectFilled(
+			drawList,
 			backgroundMinimum,
 			backgroundMaximum,
 			IM_COL32(8, 15, 26, 220),
-			3.0F);
-		drawList->AddRect(
+			3.0F,
+			ImGuiMCP::ImDrawFlags_None);
+		ImGuiMCP::ImDrawListManager::AddRect(
+			drawList,
 			backgroundMinimum,
 			backgroundMaximum,
 			IM_COL32(150, 175, 200, 210),
-			3.0F);
-		drawList->AddText(position, IM_COL32(235, 241, 247, 255), text);
+			3.0F,
+			ImGuiMCP::ImDrawFlags_None,
+			1.0F);
+		ImGuiMCP::ImDrawListManager::AddText(
+			drawList,
+			position,
+			IM_COL32(235, 241, 247, 255),
+			text);
 	}
 
 	[[nodiscard]] bool RegisterHud() noexcept
@@ -176,7 +185,7 @@ namespace
 	void __stdcall RenderDiagnostics() noexcept
 	{
 		bool inputActive = AreInputListenersActive();
-		if (ImGui::Checkbox("Input listeners active", &inputActive)) {
+		if (ImGuiMCP::Checkbox("Input listeners active", &inputActive)) {
 			if (inputActive) {
 				inputRegistrationFailed = !RegisterInputListeners();
 			} else {
@@ -186,7 +195,7 @@ namespace
 		}
 
 		bool hudActive = hudElement != nullptr;
-		if (ImGui::Checkbox("Persistent HUD active", &hudActive)) {
+		if (ImGuiMCP::Checkbox("Persistent HUD active", &hudActive)) {
 			if (hudActive) {
 				hudRegistrationFailed = !RegisterHud();
 			} else {
@@ -195,14 +204,14 @@ namespace
 			}
 		}
 
-		if (ImGui::Button("Arm next Escape")) {
+		if (ImGuiMCP::Button("Arm next Escape")) {
 			consumeNextEscape.store(true, std::memory_order_release);
 		}
-		ImGui::SameLine();
-		ImGui::TextUnformatted(
+		ImGuiMCP::SameLine();
+		ImGuiMCP::TextUnformatted(
 			consumeNextEscape.load(std::memory_order_acquire) ? "armed" : "idle");
-		ImGui::SameLine();
-		if (ImGui::Button("Reset counters")) {
+		ImGuiMCP::SameLine();
+		if (ImGuiMCP::Button("Reset counters")) {
 			ResetCounters();
 		}
 
@@ -211,48 +220,42 @@ namespace
 		const auto consumed = consumedEscapeCount.load(std::memory_order_relaxed);
 		const auto observed =
 			observedConsumedEscapeCount.load(std::memory_order_relaxed);
-		ImGui::Text(
+		ImGuiMCP::Text(
 			"Consumer / observer events: %llu / %llu",
 			static_cast<unsigned long long>(consumer),
 			static_cast<unsigned long long>(observer));
-		ImGui::Text(
+		ImGuiMCP::Text(
 			"Consumed Escape seen by observer: %llu / %llu",
 			static_cast<unsigned long long>(observed),
 			static_cast<unsigned long long>(consumed));
-		ImGui::Text(
+		ImGuiMCP::Text(
 			"HUD frames: %llu",
 			static_cast<unsigned long long>(
 				hudFrameCount.load(std::memory_order_relaxed)));
 
 		if (inputRegistrationFailed || hudRegistrationFailed) {
-			ImGui::TextColored(
-				ImVec4{ 1.0F, 0.35F, 0.35F, 1.0F },
+			ImGuiMCP::TextColored(
+				ImGuiMCP::ImVec4{ 1.0F, 0.35F, 0.35F, 1.0F },
 				"Could not register the %s callback.",
 				inputRegistrationFailed ? "input" : "HUD");
 		}
-		ImGui::TextWrapped(
+		ImGuiMCP::TextWrapped(
 			"To test consumption: arm Escape, close the MCP with F1, then press "
 			"Escape after the HUD updates once. Starfield should stay in the game "
 			"and the HUD should report matching observed/consumed counts.");
 	}
 }
 
-SFSEMenuFramework::Model::RegistrationResult
-SFSEMenuFrameworkExample::InputHudDemo::Register()
+bool SFSEMenuFrameworkExample::InputHudDemo::Register()
 {
-	using Result = SFSEMenuFramework::Model::RegistrationResult;
 	if (!RegisterInputListeners() || !RegisterHud()) {
 		UnregisterHud();
 		UnregisterInputListeners();
-		return Result::InternalError;
+		return false;
 	}
 
-	const auto result = SFSEMenuFramework::AddSectionItem(
+	SFSEMenuFramework::AddSectionItem(
 		"Input and HUD",
 		&RenderDiagnostics);
-	if (result != Result::Success) {
-		UnregisterHud();
-		UnregisterInputListeners();
-	}
-	return result;
+	return true;
 }

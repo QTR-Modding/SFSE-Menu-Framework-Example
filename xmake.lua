@@ -34,26 +34,14 @@ set_encodings("utf-8")
 add_rules("mode.debug", "mode.releasedbg", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
 
-target("imgui-core", function()
-    set_kind("static")
+target("sfse-mcp", function()
+    set_kind("headeronly")
     set_default(false)
     set_license("MIT")
 
-    add_files(
-        "extern/imgui/imgui.cpp",
-        "extern/imgui/imgui_draw.cpp",
-        "extern/imgui/imgui_tables.cpp",
-        "extern/imgui/imgui_widgets.cpp"
-    )
-    add_headerfiles(
-        "extern/imgui/imconfig.h",
-        "extern/imgui/imgui.h",
-        "extern/imgui/imgui_internal.h",
-        "extern/imgui/imstb_rectpack.h",
-        "extern/imgui/imstb_textedit.h",
-        "extern/imgui/imstb_truetype.h"
-    )
-    add_includedirs("extern/imgui", { public = true })
+    local sdk_root = path.join(os.projectdir(), "..", "SFSE-MCP")
+    add_headerfiles(path.join(sdk_root, "include", "SFSEMCP", "*.hpp"))
+    add_includedirs(path.join(sdk_root, "include"), { public = true })
 end)
 
 target(dll_name, function()
@@ -73,12 +61,11 @@ target(dll_name, function()
     set_license("GPL-3.0-only")
     set_pcxxheader("src/PCH.h")
 
-    add_deps("imgui-core")
+    add_deps("sfse-mcp")
     add_defines("_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING")
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
     add_includedirs(
-        "src",
-        "lib/sfse-menu-framework/include"
+        "src"
     )
 end)

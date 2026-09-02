@@ -1,7 +1,5 @@
 #include "Menu.h"
 
-#include <cstdint>
-
 namespace
 {
 	void OnSFSEMessage(SFSE::MessagingInterface::Message* a_message)
@@ -11,20 +9,14 @@ namespace
 			return;
 		}
 
-		const auto result = SFSEMenuFrameworkExample::Menu::Register();
-		if (result == SFSEMenuFramework::Model::RegistrationResult::Success) {
+		if (SFSEMenuFrameworkExample::Menu::Register()) {
 			logger::info(
 				"Registered the nested diagnostics, lifecycle, input, HUD, font, "
 				"and standalone-window examples.");
-		} else if (
-			result ==
-			SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable) {
-			logger::warn(
-				"SFSE Menu Framework is unavailable; the example remains inactive.");
 		} else {
-			logger::error(
-				"Example panel registration failed with result {}.",
-				static_cast<std::uint32_t>(result));
+			logger::warn(
+				"SFSE Menu Framework is unavailable or rejected a required callback; "
+				"the example remains inactive.");
 		}
 	}
 }

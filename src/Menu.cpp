@@ -349,8 +349,7 @@ namespace
 
 bool SFSEMenuFrameworkExample::Menu::Register()
 {
-	if (SFSEMenuFramework::GetMenuFrameworkVersion() < 3.8F ||
-		SFSEMenuFramework::GetMenuFrameworkAPIVersion() < 1 ||
+	if (SFSEMenuFramework::GetMenuFrameworkAPIVersion() < 1 ||
 		!SFSEMenuFramework::GetMainWindow()) {
 		return false;
 	}

@@ -32,7 +32,7 @@ local plugin_version = "0.7.0"
 local plugin_author = "Quantumyilmaz"
 local build_staging_dir = path.join(project_root, "build", "staging")
 local sdk_root = path.join(project_root, "..", "SFSE-MCP")
-local sdk_revision = "42674f0fd681c99051ea217718f82a8222be7b85"
+local sdk_revision = "b45d01305e41a04b982d7c75a2e7278df7713623"
 
 local function sdk_checkout_error(run_command)
     local revision = run_command(

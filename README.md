@@ -12,7 +12,7 @@ framework's search, favorite ordering, archive/restore, and slash-path
 navigation. It also registers lifecycle, native-input, and persistent-HUD
 callbacks through the public API.
 
-The Menu mutations page exercises the merged 3.8 API across the DLL boundary:
+The Menu mutations page exercises host API version 1 across the DLL boundary:
 escaped `\/` path segments, duplicate-registration replacement, rename, delete,
 recreate, and rename-then-delete from one render callback. Open the slash-named
 target once and return to the controller; the replacement count must increase

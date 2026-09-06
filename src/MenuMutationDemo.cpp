@@ -124,10 +124,9 @@ namespace SFSEMenuFrameworkExample::MenuMutationDemo
 
 		void __stdcall RenderController() noexcept
 		{
-			ImGuiMCP::SeparatorText("Merged 3.8 menu API");
+			ImGuiMCP::SeparatorText("Menu mutation API");
 			ImGuiMCP::Text(
-				"Framework %.1f | API %u",
-				SFSEMenuFramework::GetMenuFrameworkVersion(),
+				"Host API version: %u",
 				SFSEMenuFramework::GetMenuFrameworkAPIVersion());
 			ImGuiMCP::Text(
 				"Target: %s (%s)",

@@ -1,8 +1,9 @@
 set_xmakever("3.0.9")
 set_policy("package.requires_lock", true)
 
+local project_root = os.projectdir()
+
 if is_plat("windows") then
-    local project_root = os.projectdir()
     add_cxflags(
         "/Brepro",
         "/experimental:deterministic",
@@ -19,10 +20,45 @@ end
 
 includes(path.join(os.projectdir(), "lib", "commonlibsf"))
 
+-- Adapted from SFSE Menu Framework c0b9a6c. Example builds remain local;
+-- deployment happens only after the paired host/client build is verified.
+rule("commonlib.plugin", function()
+    after_build(function() end)
+end)
+
 local plugin_name = "SFSE Menu Framework Example"
 local dll_name = "SFSEMenuFrameworkExample"
-local plugin_version = "0.6.0"
+local plugin_version = "0.7.0"
 local plugin_author = "Quantumyilmaz"
+local build_staging_dir = path.join(project_root, "build", "staging")
+local sdk_root = path.join(project_root, "..", "SFSE-MCP")
+local sdk_revision = "d03965d7eba235e67aad98ff8997ecb14707e544"
+
+local function sdk_checkout_error(run_command)
+    local revision = run_command(
+        "git",
+        { "-C", sdk_root, "rev-parse", "HEAD" }
+    ):gsub("%s+$", "")
+    if revision ~= sdk_revision then
+        return "SFSE-MCP must be checked out at " .. sdk_revision
+    end
+
+    local include_changes = run_command(
+        "git",
+        {
+            "-C",
+            sdk_root,
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+            "--",
+            "include"
+        }
+    ):gsub("%s+$", "")
+    if include_changes ~= "" then
+        return "SFSE-MCP include tree must be clean at " .. sdk_revision
+    end
+end
 
 set_project(plugin_name)
 set_version(plugin_version)
@@ -34,26 +70,18 @@ set_encodings("utf-8")
 add_rules("mode.debug", "mode.releasedbg", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
 
-target("imgui-core", function()
-    set_kind("static")
+target("sfse-mcp", function()
+    set_kind("headeronly")
     set_default(false)
     set_license("MIT")
 
-    add_files(
-        "extern/imgui/imgui.cpp",
-        "extern/imgui/imgui_draw.cpp",
-        "extern/imgui/imgui_tables.cpp",
-        "extern/imgui/imgui_widgets.cpp"
-    )
-    add_headerfiles(
-        "extern/imgui/imconfig.h",
-        "extern/imgui/imgui.h",
-        "extern/imgui/imgui_internal.h",
-        "extern/imgui/imstb_rectpack.h",
-        "extern/imgui/imstb_textedit.h",
-        "extern/imgui/imstb_truetype.h"
-    )
-    add_includedirs("extern/imgui", { public = true })
+    add_headerfiles(path.join(sdk_root, "include", "SFSEMCP", "*.hpp"))
+    add_includedirs(path.join(sdk_root, "include"), { public = true })
+
+    on_config(function()
+        local error_message = sdk_checkout_error(os.iorunv)
+        assert(not error_message, error_message)
+    end)
 end)
 
 target(dll_name, function()
@@ -73,12 +101,24 @@ target(dll_name, function()
     set_license("GPL-3.0-only")
     set_pcxxheader("src/PCH.h")
 
-    add_deps("imgui-core")
+    add_deps("sfse-mcp")
     add_defines("_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING")
     add_files("src/**.cpp")
     add_headerfiles("src/**.h")
     add_includedirs(
-        "src",
-        "lib/sfse-menu-framework/include"
+        "src"
     )
+
+    on_config(function(target)
+        target:set("installdir", build_staging_dir)
+    end)
+
+    before_build(function(target)
+        local error_message = sdk_checkout_error(os.iorunv)
+        assert(not error_message, error_message)
+        assert(
+            path.absolute(target:installdir()) == path.absolute(build_staging_dir),
+            "refusing to build with a non-staging install destination"
+        )
+    end)
 end)

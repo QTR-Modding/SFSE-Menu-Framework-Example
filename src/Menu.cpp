@@ -1,8 +1,9 @@
 #include "Menu.h"
 #include "FontDemo.h"
 #include "InputHudDemo.h"
+#include "MenuMutationDemo.h"
 
-#include <SFSEMenuFramework/SFSEMenuFramework.h>
+#include <SFSEMCP/SFSEMenuFramework.hpp>
 
 #include <atomic>
 #include <cstdint>
@@ -185,8 +186,8 @@ namespace
 
 	void RenderCounter() noexcept
 	{
-		ImGui::Text("Count: %u", count);
-		if (ImGui::Button("Increment")) {
+		ImGuiMCP::Text("Count: %u", count);
+		if (ImGuiMCP::Button("Increment")) {
 			++count;
 		}
 	}
@@ -196,26 +197,26 @@ namespace
 		bool hotkeyEnabled = SFSEMenuFramework::IsHotkeyEnabled();
 		const bool safeToDisable = IsStandaloneOpen() && IsStandaloneBlocking();
 		const bool disableControl = hotkeyEnabled && !safeToDisable;
-		ImGui::BeginDisabled(disableControl);
-		if (ImGui::Checkbox("Framework hotkey enabled", &hotkeyEnabled)) {
+		ImGuiMCP::BeginDisabled(disableControl);
+		if (ImGuiMCP::Checkbox("Framework hotkey enabled", &hotkeyEnabled)) {
 			SFSEMenuFramework::SetHotkeyEnabled(hotkeyEnabled);
 		}
-		ImGui::EndDisabled();
+		ImGuiMCP::EndDisabled();
 
 		if (disableControl) {
-			ImGui::TextDisabled(
+			ImGuiMCP::TextDisabled(
 				"Open the blocking standalone window before disabling F1.");
 		} else if (!hotkeyEnabled) {
-			ImGui::TextDisabled(
+			ImGuiMCP::TextDisabled(
 				"F1 is disabled. Re-enable it here; closing this window also restores it.");
 		}
 	}
 
 	void RenderLifecycleEvents() noexcept
 	{
-		ImGui::SeparatorText("Lifecycle events");
+		ImGuiMCP::SeparatorText("Lifecycle events");
 		bool active = AreLifecycleEventsActive();
-		if (ImGui::Checkbox("Lifecycle listeners active", &active)) {
+		if (ImGuiMCP::Checkbox("Lifecycle listeners active", &active)) {
 			if (active) {
 				eventRegistrationFailed = !RegisterLifecycleEvents();
 			} else {
@@ -239,63 +240,65 @@ namespace
 		const auto lastEvent = static_cast<SFSEMenuFramework::Model::EventType>(
 			lastEventType.load(std::memory_order_acquire));
 
-		ImGui::Text(
+		ImGuiMCP::Text(
 			"Open / close: %llu / %llu",
 			static_cast<unsigned long long>(openCount),
 			static_cast<unsigned long long>(closeCount));
-		ImGui::Text(
+		ImGuiMCP::Text(
 			"Before / after render: %llu / %llu",
 			static_cast<unsigned long long>(beforeCount),
 			static_cast<unsigned long long>(afterCount));
-		ImGui::Text("Last event: %s", GetEventName(lastEvent));
+		ImGuiMCP::Text("Last event: %s", GetEventName(lastEvent));
 		if (highPriorityInvocations == 0 && lowPriorityInvocations == 0) {
-			ImGui::TextDisabled(
+			ImGuiMCP::TextDisabled(
 				"Priority checks: waiting for the first complete callback pair");
 		} else if (
 			orderFailures == 0 &&
 			highPriorityInvocations == lowPriorityInvocations) {
-			ImGui::Text(
+			ImGuiMCP::Text(
 				"Priority checks: %llu paired, 0 failures",
 				static_cast<unsigned long long>(highPriorityInvocations));
 		} else {
-			ImGui::TextColored(
-				ImVec4{ 1.0F, 0.35F, 0.35F, 1.0F },
+			ImGuiMCP::TextColored(
+				ImGuiMCP::ImVec4{ 1.0F, 0.35F, 0.35F, 1.0F },
 				"Priority mismatch - high: %llu, low: %llu, failures: %llu",
 				static_cast<unsigned long long>(highPriorityInvocations),
 				static_cast<unsigned long long>(lowPriorityInvocations),
 				static_cast<unsigned long long>(orderFailures));
 		}
 		if (eventRegistrationFailed) {
-			ImGui::TextColored(
-				ImVec4{ 1.0F, 0.35F, 0.35F, 1.0F },
+			ImGuiMCP::TextColored(
+				ImGuiMCP::ImVec4{ 1.0F, 0.35F, 0.35F, 1.0F },
 				"Could not register the lifecycle listeners.");
 		}
-		ImGui::TextDisabled(
+		ImGuiMCP::TextDisabled(
 			"Open/Close cover the main MCP only; standalone windows do not emit them.");
 	}
 
 	void __stdcall RenderStandaloneWindow() noexcept
 	{
 		bool keepOpen = true;
-		ImGui::SetNextWindowSize(ImVec2(640.0F, 360.0F), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin(
+		ImGuiMCP::SetNextWindowSize(
+			ImGuiMCP::ImVec2(640.0F, 360.0F),
+			ImGuiMCP::ImGuiCond_FirstUseEver);
+		if (ImGuiMCP::Begin(
 				"SFSE Menu Framework Example Window",
 				&keepOpen)) {
-			ImGui::TextWrapped(
+			ImGuiMCP::TextWrapped(
 				"This resizable window is rendered by the example plugin through "
 				"SFSE Menu Framework's public AddWindow API.");
-			ImGui::Separator();
+			ImGuiMCP::Separator();
 			RenderCounter();
-			ImGui::Separator();
-			ImGui::Text(
+			ImGuiMCP::Separator();
+			ImGuiMCP::Text(
 				"Blocks game input: %s",
 				IsStandaloneBlocking() ? "yes" : "no");
-			ImGui::Text(
+			ImGuiMCP::Text(
 				"Any blocking framework window: %s",
-				SFSEMenuFramework::IsAnyBlockingWindowOpened() ? "yes" : "no");
+				SFSEMenuFramework::IsAnyBlockingWindowOpen() ? "yes" : "no");
 			RenderHotkeyControl();
 		}
-		ImGui::End();
+		ImGuiMCP::End();
 
 		if (!keepOpen) {
 			SetStandaloneOpen(false);
@@ -307,34 +310,34 @@ namespace
 		RenderCounter();
 
 		bool standaloneOpen = IsStandaloneOpen();
-		if (ImGui::Checkbox("Standalone example window open", &standaloneOpen)) {
+		if (ImGuiMCP::Checkbox("Standalone example window open", &standaloneOpen)) {
 			SetStandaloneOpen(standaloneOpen);
 		}
 
 		bool standaloneBlocking = IsStandaloneBlocking();
-		if (ImGui::Checkbox(
+		if (ImGuiMCP::Checkbox(
 				"Standalone window blocks game input",
 				&standaloneBlocking)) {
 			SetStandaloneBlocking(standaloneBlocking);
 		}
 
 		if (standaloneOpen && !standaloneBlocking) {
-			ImGui::TextDisabled(
+			ImGuiMCP::TextDisabled(
 				"Nonblocking mode stays visible after F1 closes this menu, but "
 				"intentionally releases mouse and keyboard ownership.");
 		}
 
 		const auto* mainWindow = SFSEMenuFramework::GetMainWindow();
-		ImGui::Text(
+		ImGuiMCP::Text(
 			"Main framework window: %s",
 			mainWindow &&
 					mainWindow->IsOpen.load(std::memory_order_acquire) ?
 				"open" :
 				"closed");
-		ImGui::Text(
+		ImGuiMCP::Text(
 			"Any blocking framework window: %s",
-			SFSEMenuFramework::IsAnyBlockingWindowOpened() ? "yes" : "no");
-		ImGui::Separator();
+			SFSEMenuFramework::IsAnyBlockingWindowOpen() ? "yes" : "no");
+		ImGuiMCP::Separator();
 		RenderHotkeyControl();
 	}
 
@@ -344,50 +347,36 @@ namespace
 	}
 }
 
-SFSEMenuFramework::Model::RegistrationResult
-SFSEMenuFrameworkExample::Menu::Register()
+bool SFSEMenuFrameworkExample::Menu::Register()
 {
-	if (!SFSEMenuFramework::IsInstalled()) {
-		return SFSEMenuFramework::Model::RegistrationResult::InterfaceUnavailable;
+	if (SFSEMenuFramework::GetMenuFrameworkAPIVersion() < 1 ||
+		!SFSEMenuFramework::GetMainWindow()) {
+		return false;
 	}
-	if (!SFSEMenuFramework::GetMainWindow()) {
-		return SFSEMenuFramework::Model::RegistrationResult::InternalError;
-	}
-	if (!SFSEMenuFramework::SetSection("Test Plugin")) {
-		return SFSEMenuFramework::Model::RegistrationResult::OutOfMemory;
-	}
+
+	SFSEMenuFramework::SetSection("Test Plugin");
 	if (!RegisterLifecycleEvents()) {
-		return SFSEMenuFramework::Model::RegistrationResult::InternalError;
+		return false;
 	}
 	if (!standaloneWindow) {
 		standaloneWindow =
 			SFSEMenuFramework::AddWindow(&RenderStandaloneWindow, true);
 		if (!standaloneWindow) {
-			return SFSEMenuFramework::Model::RegistrationResult::InternalError;
+			return false;
 		}
 	}
-	const auto settingsResult = SFSEMenuFramework::AddSectionItem(
+	SFSEMenuFramework::AddSectionItem(
 		"Settings/General",
 		&RenderGeneralSettings);
-	if (settingsResult !=
-		SFSEMenuFramework::Model::RegistrationResult::Success) {
-		return settingsResult;
-	}
 
-	if (!SFSEMenuFramework::SetSection("Test Plugin Diagnostics")) {
-		return SFSEMenuFramework::Model::RegistrationResult::OutOfMemory;
-	}
-	const auto lifecycleResult = SFSEMenuFramework::AddSectionItem(
+	SFSEMenuFramework::SetSection("Test Plugin Diagnostics");
+	SFSEMenuFramework::AddSectionItem(
 		"Lifecycle/Events",
 		&RenderLifecyclePage);
-	if (lifecycleResult !=
-		SFSEMenuFramework::Model::RegistrationResult::Success) {
-		return lifecycleResult;
+	if (!InputHudDemo::Register()) {
+		return false;
 	}
-	const auto inputHudResult = InputHudDemo::Register();
-	if (inputHudResult !=
-		SFSEMenuFramework::Model::RegistrationResult::Success) {
-		return inputHudResult;
-	}
-	return FontDemo::Register();
+	FontDemo::Register();
+	MenuMutationDemo::Register();
+	return true;
 }

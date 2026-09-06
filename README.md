@@ -1,27 +1,33 @@
 # SFSE Menu Framework Example
 
-A minimal external C++ consumer for SFSE Menu Framework. During SFSE
+A minimal external C++ consumer for SFSE Menu Framework using the header-only
+SFSE-MCP SDK. During SFSE
 `kPostLoad`, it registers `Test Plugin` > `Settings` > `General`,
 `Test Plugin Diagnostics` > `Lifecycle` > `Events`, `Test Plugin Diagnostics`
 > `Input and HUD`, `Test Plugin Diagnostics` > `Fonts` > `API`, and a
-consumer-owned, resizable ImGui window. They are
+`Test Plugin Diagnostics` > `Menu mutations` controller, an escaped-slash test
+page, and a consumer-owned, resizable ImGui window. They are
 available before `kPostDataLoad`. The two roots and nested pages exercise the
 framework's search, favorite ordering, archive/restore, and slash-path
 navigation. It also registers lifecycle, native-input, and persistent-HUD
 callbacks through the public API.
 
-The Fonts page exercises the complete consumer interface from an external DLL
-and resolves named text fonts by case-insensitive filename and stem, balances
-text-font pushes with
-`ScopedFont`, and renders Solid, Regular, and Brands Font Awesome glyphs through
-the public helpers. Buttons verify that missing font names and unmatched pops
-are rejected. The multilingual sample also shows that optional glyph coverage
-requires both the matching framework setting and a font containing those
-characters.
+The Menu mutations page exercises host API version 1 across the DLL boundary:
+escaped `\/` path segments, duplicate-registration replacement, rename, delete,
+recreate, and rename-then-delete from one render callback. Open the slash-named
+target once and return to the controller; the replacement count must increase
+while the stale-renderer count remains zero.
 
-The plugin compiles only the four Dear ImGui 1.90.8 core sources required to
-render through the framework-owned context. It does not create a renderer,
-platform backend, window hook, or input hook.
+The Fonts page resolves named text fonts by case-insensitive filename and stem
+and renders Solid, Regular, and Brands Font Awesome glyphs through the public
+push/pop helpers. The multilingual sample also shows that optional glyph
+coverage requires both the matching framework setting and a font containing
+those characters.
+
+The plugin does not compile or link Dear ImGui. Its callbacks call
+`ImGuiMCP::*`; those header-only wrappers resolve the corresponding `ig*`
+exports from `SFSEMenuFramework.dll` with `GetProcAddress`, so all ImGui code
+executes in the framework DLL that owns the real context.
 
 The General panel exercises the process-lifetime `WindowInterface` returned
 by `AddWindow`: the consumer directly controls `IsOpen` and
@@ -42,8 +48,8 @@ Both listener pairs and the HUD can be unregistered and registered again from
 the page. The HUD uses only the foreground draw list, remains noninteractive,
 and continues to render while the MCP is closed.
 
-This example version requires SFSE Menu Framework 0.10.0 or newer. An older
-framework DLL is reported as unavailable during `kPostLoad` registration.
+An unavailable framework DLL is reported during `kPostLoad` registration and
+the example stays inactive.
 
 The hotkey checkbox can be disabled only while the standalone window is open
 and blocking. Closing that window or making it nonblocking automatically
@@ -58,13 +64,17 @@ return to the General panel.
 ## Build
 
 ```powershell
-git submodule update --init --recursive
+git submodule update --init
 xmake f -m releasedbg
 xmake
 ```
+
+Until SFSE-MCP is consumed as a package, keep its checkout beside this one as
+`../SFSE-MCP`; xmake treats it as a header-only dependency and verifies the
+exact commit pinned in `xmake.lua`.
 
 The output is `build/windows/x64/releasedbg/SFSEMenuFrameworkExample.dll`.
 
 ## License
 
-GPL-3.0-only. Dear ImGui remains under its MIT license.
+GPL-3.0-only. SFSE-MCP and Dear ImGui remain under their MIT licenses.

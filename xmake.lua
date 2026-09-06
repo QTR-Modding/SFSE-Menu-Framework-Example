@@ -31,7 +31,34 @@ local dll_name = "SFSEMenuFrameworkExample"
 local plugin_version = "0.7.0"
 local plugin_author = "Quantumyilmaz"
 local build_staging_dir = path.join(project_root, "build", "staging")
+local sdk_root = path.join(project_root, "..", "SFSE-MCP")
 local sdk_revision = "42674f0fd681c99051ea217718f82a8222be7b85"
+
+local function sdk_checkout_error(run_command)
+    local revision = run_command(
+        "git",
+        { "-C", sdk_root, "rev-parse", "HEAD" }
+    ):gsub("%s+$", "")
+    if revision ~= sdk_revision then
+        return "SFSE-MCP must be checked out at " .. sdk_revision
+    end
+
+    local include_changes = run_command(
+        "git",
+        {
+            "-C",
+            sdk_root,
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+            "--",
+            "include"
+        }
+    ):gsub("%s+$", "")
+    if include_changes ~= "" then
+        return "SFSE-MCP include tree must be clean at " .. sdk_revision
+    end
+end
 
 set_project(plugin_name)
 set_version(plugin_version)
@@ -48,19 +75,12 @@ target("sfse-mcp", function()
     set_default(false)
     set_license("MIT")
 
-    local sdk_root = path.join(os.projectdir(), "..", "SFSE-MCP")
     add_headerfiles(path.join(sdk_root, "include", "SFSEMCP", "*.hpp"))
     add_includedirs(path.join(sdk_root, "include"), { public = true })
 
     on_config(function()
-        local revision = os.iorunv(
-            "git",
-            { "-C", sdk_root, "rev-parse", "HEAD" }
-        ):gsub("%s+$", "")
-        assert(
-            revision == sdk_revision,
-            "SFSE-MCP must be checked out at " .. sdk_revision
-        )
+        local error_message = sdk_checkout_error(os.iorunv)
+        assert(not error_message, error_message)
     end)
 end)
 
@@ -94,6 +114,8 @@ target(dll_name, function()
     end)
 
     before_build(function(target)
+        local error_message = sdk_checkout_error(os.iorunv)
+        assert(not error_message, error_message)
         assert(
             path.absolute(target:installdir()) == path.absolute(build_staging_dir),
             "refusing to build with a non-staging install destination"

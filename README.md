@@ -5,11 +5,18 @@ SFSE-MCP SDK. During SFSE
 `kPostLoad`, it registers `Test Plugin` > `Settings` > `General`,
 `Test Plugin Diagnostics` > `Lifecycle` > `Events`, `Test Plugin Diagnostics`
 > `Input and HUD`, `Test Plugin Diagnostics` > `Fonts` > `API`, and a
-consumer-owned, resizable ImGui window. They are
+`Test Plugin Diagnostics` > `Menu mutations` controller, an escaped-slash test
+page, and a consumer-owned, resizable ImGui window. They are
 available before `kPostDataLoad`. The two roots and nested pages exercise the
 framework's search, favorite ordering, archive/restore, and slash-path
 navigation. It also registers lifecycle, native-input, and persistent-HUD
 callbacks through the public API.
+
+The Menu mutations page exercises the merged 3.8 API across the DLL boundary:
+escaped `\/` path segments, duplicate-registration replacement, rename, delete,
+recreate, and rename-then-delete from one render callback. Open the slash-named
+target once and return to the controller; the replacement count must increase
+while the stale-renderer count remains zero.
 
 The Fonts page resolves named text fonts by case-insensitive filename and stem
 and renders Solid, Regular, and Brands Font Awesome glyphs through the public
@@ -63,7 +70,8 @@ xmake
 ```
 
 Until SFSE-MCP is consumed as a package, keep its checkout beside this one as
-`../SFSE-MCP`; xmake treats it as a header-only dependency.
+`../SFSE-MCP`; xmake treats it as a header-only dependency and verifies the
+exact commit pinned in `xmake.lua`.
 
 The output is `build/windows/x64/releasedbg/SFSEMenuFrameworkExample.dll`.
 

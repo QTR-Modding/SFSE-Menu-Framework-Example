@@ -1,8 +1,9 @@
 set_xmakever("3.0.9")
 set_policy("package.requires_lock", true)
 
+local project_root = os.projectdir()
+
 if is_plat("windows") then
-    local project_root = os.projectdir()
     add_cxflags(
         "/Brepro",
         "/experimental:deterministic",
@@ -19,10 +20,18 @@ end
 
 includes(path.join(os.projectdir(), "lib", "commonlibsf"))
 
+-- Adapted from SFSE Menu Framework c0b9a6c. Example builds remain local;
+-- deployment happens only after the paired host/client build is verified.
+rule("commonlib.plugin", function()
+    after_build(function() end)
+end)
+
 local plugin_name = "SFSE Menu Framework Example"
 local dll_name = "SFSEMenuFrameworkExample"
-local plugin_version = "0.6.0"
+local plugin_version = "0.7.0"
 local plugin_author = "Quantumyilmaz"
+local build_staging_dir = path.join(project_root, "build", "staging")
+local sdk_revision = "42674f0fd681c99051ea217718f82a8222be7b85"
 
 set_project(plugin_name)
 set_version(plugin_version)
@@ -42,6 +51,17 @@ target("sfse-mcp", function()
     local sdk_root = path.join(os.projectdir(), "..", "SFSE-MCP")
     add_headerfiles(path.join(sdk_root, "include", "SFSEMCP", "*.hpp"))
     add_includedirs(path.join(sdk_root, "include"), { public = true })
+
+    on_config(function()
+        local revision = os.iorunv(
+            "git",
+            { "-C", sdk_root, "rev-parse", "HEAD" }
+        ):gsub("%s+$", "")
+        assert(
+            revision == sdk_revision,
+            "SFSE-MCP must be checked out at " .. sdk_revision
+        )
+    end)
 end)
 
 target(dll_name, function()
@@ -68,4 +88,15 @@ target(dll_name, function()
     add_includedirs(
         "src"
     )
+
+    on_config(function(target)
+        target:set("installdir", build_staging_dir)
+    end)
+
+    before_build(function(target)
+        assert(
+            path.absolute(target:installdir()) == path.absolute(build_staging_dir),
+            "refusing to build with a non-staging install destination"
+        )
+    end)
 end)

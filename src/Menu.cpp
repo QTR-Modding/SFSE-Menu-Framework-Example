@@ -1,6 +1,7 @@
 #include "Menu.h"
 #include "FontDemo.h"
 #include "InputHudDemo.h"
+#include "MenuMutationDemo.h"
 
 #include <SFSEMCP/SFSEMenuFramework.hpp>
 
@@ -348,7 +349,8 @@ namespace
 
 bool SFSEMenuFrameworkExample::Menu::Register()
 {
-	if (SFSEMenuFramework::GetMenuFrameworkVersion() <= 0.0F ||
+	if (SFSEMenuFramework::GetMenuFrameworkVersion() < 3.8F ||
+		SFSEMenuFramework::GetMenuFrameworkAPIVersion() < 1 ||
 		!SFSEMenuFramework::GetMainWindow()) {
 		return false;
 	}
@@ -376,5 +378,6 @@ bool SFSEMenuFrameworkExample::Menu::Register()
 		return false;
 	}
 	FontDemo::Register();
+	MenuMutationDemo::Register();
 	return true;
 }

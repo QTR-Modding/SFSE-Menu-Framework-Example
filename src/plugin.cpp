@@ -12,7 +12,7 @@ namespace
 		if (SFSEMenuFrameworkExample::Menu::Register()) {
 			logger::info(
 				"Registered the nested diagnostics, lifecycle, input, HUD, font, "
-				"and standalone-window examples.");
+				"menu-mutation, and standalone-window examples.");
 		} else {
 			logger::warn(
 				"SFSE Menu Framework is unavailable or rejected a required callback; "

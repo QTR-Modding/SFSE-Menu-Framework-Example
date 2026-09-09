@@ -50,7 +50,7 @@ Clone the SDK beside this repository at the revision pinned in
 
 ```powershell
 git clone https://github.com/QTR-Modding/SFSE-MCP.git
-git -C SFSE-MCP checkout ed331dab06b3055d2d6731a471bccd3587048a17
+git -C SFSE-MCP checkout 7a18b515ccdd325f3dd32564ffd892c2599f485d
 git clone --recurse-submodules https://github.com/QTR-Modding/SFSE-Menu-Framework-Example.git
 cd SFSE-Menu-Framework-Example
 xmake f -m releasedbg

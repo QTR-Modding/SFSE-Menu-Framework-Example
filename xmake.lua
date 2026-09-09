@@ -28,11 +28,11 @@ end)
 
 local plugin_name = "SFSE Menu Framework Example"
 local dll_name = "SFSEMenuFrameworkExample"
-local plugin_version = "0.7.0"
+local plugin_version = "0.8.0"
 local plugin_author = "Quantumyilmaz"
 local build_staging_dir = path.join(project_root, "build", "staging")
 local sdk_root = path.join(project_root, "..", "SFSE-MCP")
-local sdk_revision = "a604d76a750939321640d8f6325d90bee858c03f"
+local sdk_revision = "ed331dab06b3055d2d6731a471bccd3587048a17"
 
 local function sdk_checkout_error(run_command)
     local revision = run_command(
@@ -75,7 +75,7 @@ target("sfse-mcp", function()
     set_default(false)
     set_license("MIT")
 
-    add_headerfiles(path.join(sdk_root, "include", "SFSEMCP", "*.hpp"))
+    add_headerfiles(path.join(sdk_root, "include", "SFSEMCP", "**.hpp"))
     add_includedirs(path.join(sdk_root, "include"), { public = true })
 
     on_config(function()

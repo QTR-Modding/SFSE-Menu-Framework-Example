@@ -1,80 +1,66 @@
 # SFSE Menu Framework Example
 
-A minimal external C++ consumer for SFSE Menu Framework using the header-only
-SFSE-MCP SDK. During SFSE
-`kPostLoad`, it registers `Test Plugin` > `Settings` > `General`,
-`Test Plugin Diagnostics` > `Lifecycle` > `Events`, `Test Plugin Diagnostics`
-> `Input and HUD`, `Test Plugin Diagnostics` > `Fonts` > `API`, and a
-`Test Plugin Diagnostics` > `Menu mutations` controller, an escaped-slash test
-page, and a consumer-owned, resizable ImGui window. They are
-available before `kPostDataLoad`. The two roots and nested pages exercise the
-framework's search, favorite ordering, archive/restore, and slash-path
-navigation. It also registers lifecycle, native-input, and persistent-HUD
-callbacks through the public API.
+A C++ example of using the [SFSE-MCP SDK](https://github.com/QTR-Modding/SFSE-MCP)
+to add settings pages, a separate window and a HUD to Starfield.
+It uses the framework's ImGui implementation, not its own copy.
 
-The Menu mutations page exercises host API version 1 across the DLL boundary:
-escaped `\/` path segments, duplicate-registration replacement, rename, delete,
-recreate, and rename-then-delete from one render callback. Open the slash-named
-target once and return to the controller; the replacement count must increase
-while the stale-renderer count remains zero.
+## Try it
 
-The Fonts page resolves named text fonts by case-insensitive filename and stem
-and renders Solid, Regular, and Brands Font Awesome glyphs through the public
-push/pop helpers. The multilingual sample also shows that optional glyph
-coverage requires both the matching framework setting and a font containing
-those characters.
+Install [SFSE Menu Framework](https://github.com/QTR-Modding/SFSE-Menu-Framework)
+and place `SFSEMenuFrameworkExample.dll` in `Data/SFSE/Plugins`.
+Launch through SFSE and press **F1**.
 
-The plugin does not compile or link Dear ImGui. Its callbacks call
-`ImGuiMCP::*`; those header-only wrappers resolve the corresponding `ig*`
-exports from `SFSEMenuFramework.dll` with `GetProcAddress`, so all ImGui code
-executes in the framework DLL that owns the real context.
+Open **Test Plugin > Settings > General** to try a button and a resizable
+window. **Test Plugin Diagnostics** contains:
 
-The General panel exercises the process-lifetime `WindowInterface` returned
-by `AddWindow`: the consumer directly controls `IsOpen` and
-`BlockUserInput`. It also displays aggregate blocking state, reads the main
-framework window, and exercises the framework hotkey control.
+- **Lifecycle > Events:** menu events and callback priority.
+- **Input and HUD:** input consumption and a HUD that stays visible when the
+  panel is closed.
+- **Fonts > API:** named fonts, Font Awesome icons and optional language glyphs.
+- **Menu mutations:** nested paths, replacement, rename and deletion.
 
-The Lifecycle events block counts main-MCP Open/Close events and per-frame
-BeforeRender/AfterRender events, shows the most recent event, and reports any
-priority-order failure. Its checkbox deletes both RAII `Event` objects to test
-unregistration and can register them again. Opening or closing the standalone
-window must not change the Open/Close counts.
+Pages register at `kPostLoad`, before game data finishes loading.
+If the framework is missing, the example logs a warning and stays inactive.
+The SDK's verification rules still apply to a detected invalid framework.
 
-The Input and HUD page registers a consuming input callback first and an
-observing callback second. Arm the next Escape press, close the MCP with F1,
-wait for the foreground HUD to update once, then press Escape: Starfield should
-remain in the game while the HUD reports matching observed and consumed counts.
-Both listener pairs and the HUD can be unregistered and registered again from
-the page. The HUD uses only the foreground draw list, remains noninteractive,
-and continues to render while the MCP is closed.
+## A few useful checks
 
-An unavailable framework DLL is reported during `kPostLoad` registration and
-the example stays inactive.
+- **Nonblocking window:** uncheck `Standalone window blocks game input`,
+  then close the main panel with F1. The separate window stays visible while
+  input goes to Starfield. Press F1 to return.
+- **Hotkey control:** the example only lets you disable the hotkey while its
+  separate window is open and blocking. Closing it or making it nonblocking
+  restores the hotkey.
+- **Input consumption:** arm the next Escape press, close the panel with F1,
+  wait for one HUD update, then press Escape. The game should not pause, and
+  the HUD should show matching observed and consumed counts.
+- **Lifecycle events:** opening the separate window should not change the
+  main panel's Open/Close counts. The checkbox removes or restores the listeners.
+- **Menu mutations:** visit the slash-named page, then return to the controller.
+  The replacement count should rise; the stale-renderer count should stay zero.
 
-The hotkey checkbox can be disabled only while the standalone window is open
-and blocking. Closing that window or making it nonblocking automatically
-restores the hotkey. These safeguards prevent normal use of the example from
-stranding the user with F1 disabled.
-
-For a nonblocking-window test, uncheck `Standalone window blocks game input`,
-then close the main framework window with F1. The standalone window remains
-visible but intentionally has no mouse or keyboard ownership; press F1 again to
-return to the General panel.
+For multilingual text, enable the relevant glyph range in the framework and
+choose a font that contains those characters.
 
 ## Build
 
+Requires Xmake 3.0.9+, MSVC with C++23 support, and the Windows SDK.
+Clone the SDK beside this repository at the revision pinned in
+[xmake.lua](xmake.lua); the build checks the revision and rejects edited headers.
+
 ```powershell
-git submodule update --init
+git clone https://github.com/QTR-Modding/SFSE-MCP.git
+git -C SFSE-MCP checkout ed331dab06b3055d2d6731a471bccd3587048a17
+git clone --recurse-submodules https://github.com/QTR-Modding/SFSE-Menu-Framework-Example.git
+cd SFSE-Menu-Framework-Example
 xmake f -m releasedbg
 xmake
 ```
 
-Until SFSE-MCP is consumed as a package, keep its checkout beside this one as
-`../SFSE-MCP`; xmake treats it as a header-only dependency and verifies the
-exact commit pinned in `xmake.lua`.
-
-The output is `build/windows/x64/releasedbg/SFSEMenuFrameworkExample.dll`.
+The DLL is written to
+`build/windows/x64/releasedbg/SFSEMenuFrameworkExample.dll`.
+Building does not install it into the game.
 
 ## License
 
-GPL-3.0-only. SFSE-MCP and Dear ImGui remain under their MIT licenses.
+[GPL-3.0-only](LICENSE). The SFSE-MCP dependency is MIT-licensed.

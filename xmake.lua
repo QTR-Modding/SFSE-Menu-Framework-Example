@@ -32,7 +32,7 @@ local plugin_version = "0.8.0"
 local plugin_author = "Quantumyilmaz"
 local build_staging_dir = path.join(project_root, "build", "staging")
 local sdk_root = path.join(project_root, "..", "SFSE-MCP")
-local sdk_revision = "7a18b515ccdd325f3dd32564ffd892c2599f485d"
+local sdk_revision = "abeee13a366d2a288cb682037c6ec5d577bba810"
 
 local function sdk_checkout_error(run_command)
     local revision = run_command(
@@ -76,7 +76,8 @@ target("sfse-mcp", function()
     set_license("MIT")
 
     add_headerfiles(path.join(sdk_root, "include", "SFSEMCP", "**.hpp"))
-    add_includedirs(path.join(sdk_root, "include"), { public = true })
+    add_includedirs(path.join(sdk_root, "include"),
+        path.join(sdk_root, "lib/clib-utils-qtr/include"), { public = true })
 
     on_config(function()
         local error_message = sdk_checkout_error(os.iorunv)

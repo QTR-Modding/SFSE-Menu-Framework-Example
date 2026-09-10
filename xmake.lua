@@ -28,7 +28,7 @@ end)
 
 local plugin_name = "SFSE Menu Framework Example"
 local dll_name = "SFSEMenuFrameworkExample"
-local plugin_version = "0.8.0"
+local plugin_version = "1.0.0"
 local plugin_author = "Quantumyilmaz"
 local build_staging_dir = path.join(project_root, "build", "staging")
 local sdk_root = path.join(project_root, "..", "SFSE-MCP")

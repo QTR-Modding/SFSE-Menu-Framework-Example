@@ -1,5 +1,7 @@
 # SFSE Menu Framework Example
 
+SFSE-MCP and its QTR signing helpers are MIT licensed; their notices are in `notices/`.
+
 A C++ example of using the [SFSE-MCP SDK](https://github.com/QTR-Modding/SFSE-MCP)
 to add settings pages, a separate window and a HUD to Starfield.
 It uses the framework's ImGui implementation, not its own copy.
@@ -50,7 +52,8 @@ Clone the SDK beside this repository at the revision pinned in
 
 ```powershell
 git clone https://github.com/QTR-Modding/SFSE-MCP.git
-git -C SFSE-MCP checkout 7a18b515ccdd325f3dd32564ffd892c2599f485d
+git -C SFSE-MCP checkout abeee13a366d2a288cb682037c6ec5d577bba810
+git -C SFSE-MCP submodule update --init --recursive
 git clone --recurse-submodules https://github.com/QTR-Modding/SFSE-Menu-Framework-Example.git
 cd SFSE-Menu-Framework-Example
 xmake f -m releasedbg

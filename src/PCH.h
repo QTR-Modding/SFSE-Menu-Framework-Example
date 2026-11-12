@@ -1,7 +1,6 @@
 #pragma once
 
-#include <RE/Starfield.h>
-#include <SFSE/SFSE.h>
+#include <SF1SDK/Starfield.h>
 
 #include <spdlog/spdlog.h>
 

@@ -2,8 +2,6 @@
 
 #include <SFSEMCP/SFSEMenuFramework.hpp>
 
-#include <RE/B/BSInputEventUser.h>
-
 #include <Windows.h>
 
 #include <atomic>

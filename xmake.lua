@@ -90,6 +90,7 @@ end)
 
 target(dll_name, function()
     set_kind("shared")
+    add_rules("sf1sdk.plugin")
     add_deps("SF1SDK")
     add_packages("spdlog")
     add_syslinks("user32")
